@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="CC-BY-NC-SA-4.0"
+
+[[mods]]
+modId="thaumicexploration"
+version="0.1.17-alpha+26.3"
+displayName="Thaumic Exploration"
+authors="Flaxbeard, nekosune (original)"
+description="Development port for Thaumcraft 4: Reforged."
+
+[[dependencies.thaumicexploration]]
+modId="thaumcraft"
+type="required"
+versionRange="[1.1.3]"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.thaumicexploration]]
+modId="minecraft"
+type="required"
+versionRange="[26.3]"
+ordering="NONE"
+side="BOTH"
+
+[[mixins]]
+config="thaumicexploration.mixins.json"

@@ -1,0 +1,149 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "thaumicexploration:block/soul_crucible_7",
+    "rim": "thaumicexploration:block/soul_crucible_1",
+    "floor": "thaumicexploration:block/soul_crucible_6",
+    "bottom": "thaumicexploration:block/soul_crucible_2",
+    "side": "thaumicexploration:block/soul_crucible_7",
+    "inside": "thaumicexploration:block/soul_crucible_5"
+  },
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#bottom"
+        },
+        "up": {
+          "texture": "#floor"
+        }
+      },
+      "to": [
+        16,
+        4,
+        16
+      ],
+      "from": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#inside"
+        },
+        "up": {
+          "texture": "#rim",
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ]
+        }
+      },
+      "to": [
+        16,
+        16,
+        2
+      ],
+      "from": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "faces": {
+        "south": {
+          "texture": "#side"
+        },
+        "north": {
+          "texture": "#inside"
+        },
+        "up": {
+          "texture": "#rim",
+          "uv": [
+            0,
+            14,
+            16,
+            16
+          ]
+        }
+      },
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "from": [
+        0,
+        0,
+        14
+      ]
+    },
+    {
+      "faces": {
+        "west": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#inside"
+        },
+        "up": {
+          "texture": "#rim",
+          "uv": [
+            0,
+            0,
+            2,
+            16
+          ]
+        }
+      },
+      "to": [
+        2,
+        16,
+        16
+      ],
+      "from": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "faces": {
+        "west": {
+          "texture": "#inside"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#rim",
+          "uv": [
+            14,
+            0,
+            16,
+            16
+          ]
+        }
+      },
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "from": [
+        14,
+        0,
+        0
+      ]
+    }
+  ]
+}

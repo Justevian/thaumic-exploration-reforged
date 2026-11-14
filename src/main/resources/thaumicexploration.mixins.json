@@ -1,0 +1,1 @@
+{"required":true,"minVersion":"0.8","package":"tx.mixin","compatibilityLevel":"JAVA_21","client":["TransmutationWandRendererMixin"],"injectors":{"defaultRequire":1},"mixins":["WandNameMixin","CreativeWandRecipeMixin","TentacleMinionTargetMixin"]}

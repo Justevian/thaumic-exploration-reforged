@@ -1,0 +1,21 @@
+{
+  "max_level": 1,
+  "supported_items": "#minecraft:enchantable/head_armor",
+  "slots": [
+    "head"
+  ],
+  "weight": 2,
+  "anvil_cost": 4,
+  "max_cost": {
+    "base": 60,
+    "per_level_above_first": 10
+  },
+  "effects": {},
+  "min_cost": {
+    "base": 15,
+    "per_level_above_first": 10
+  },
+  "description": {
+    "translate": "enchantment.thaumicexploration.night_vision"
+  }
+}
