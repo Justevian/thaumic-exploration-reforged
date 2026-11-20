@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "thaumicexploration:air_discount_ring",
+    "thaumicexploration:earth_discount_ring",
+    "thaumicexploration:entropy_discount_ring",
+    "thaumicexploration:fire_discount_ring",
+    "thaumicexploration:order_discount_ring",
+    "thaumicexploration:tentacle_ring",
+    "thaumicexploration:water_discount_ring"
+  ]
+}

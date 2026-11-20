@@ -24,8 +24,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import thaumcraft.compat.ValueInput;
+import thaumcraft.compat.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import thaumcraft.blockentity.TcBlockEntity;
@@ -106,7 +106,7 @@ final class BoundChest extends Block implements EntityBlock {
             if (!server.mayInteract(player, pos) || !(level.getBlockEntity(pos) instanceof ChestBlockEntity original)
                 || !original.isEmpty()) return InteractionResult.FAIL;
 
-            String previous = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getStringOr("channel", "");
+            String previous = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getString("channel");
             if (stack.is(Exploration.LINKED_SEAL.get()) && previous.isEmpty()) return InteractionResult.FAIL;
             String channel = previous.isEmpty() ? UUID.randomUUID().toString() : previous;
             if (!server.setBlockAndUpdate(pos, Exploration.CHEST.get().defaultBlockState())

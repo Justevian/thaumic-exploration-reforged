@@ -11,8 +11,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
+
 import net.minecraft.world.phys.AABB;
 import thaumcraft.aspect.Aspect;
 import thaumcraft.aspect.AspectHelper;
@@ -73,7 +74,7 @@ final class SoulCrucible extends Block implements EntityBlock {
             var victim = target;
             var tags = AspectHelper.getEntityTags(victim);
             float damage = victim.getHealth() <= 1 ? 100 : 1;
-            if (victim.hurtServer(world, world.damageSources().magic(), damage) && !victim.isAlive() && tags != null) {
+            if (victim.hurt(world.damageSources().magic(), damage) && !victim.isAlive() && tags != null) {
                 harvest(world, tags);
                 target = null;
             }
@@ -142,14 +143,16 @@ final class SoulCrucible extends Block implements EntityBlock {
             return taken;
         }
 
-        @Override protected void loadAdditional(ValueInput input) {
-            super.loadAdditional(input);
+        @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+            var input = new PortNbt.Input(tag, registries);
+            super.loadAdditional(tag, registries);
             contents = input.read("essentia", AspectList.CODEC).orElseGet(AspectList::new);
             flux = input.getFloatOr("flux", 0);
         }
 
-        @Override protected void saveAdditional(ValueOutput output) {
-            super.saveAdditional(output);
+        @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+            var output = new PortNbt.Output(tag, registries);
+            super.saveAdditional(tag, registries);
             output.store("essentia", AspectList.CODEC, contents);
             output.putFloat("flux", flux);
         }

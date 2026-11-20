@@ -1,1 +1,5 @@
-{"textures":{"particle":"thaumicexploration:model/largejar"}}
+{
+  "textures": {
+    "particle": "thaumicexploration:block/think_tank"
+  }
+}

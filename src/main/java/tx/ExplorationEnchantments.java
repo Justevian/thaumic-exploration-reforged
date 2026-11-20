@@ -1,7 +1,7 @@
 package tx;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.*;
@@ -23,7 +23,7 @@ final class ExplorationEnchantments {
     static final ResourceKey<Enchantment> VISION = key("night_vision");
 
     private static ResourceKey<Enchantment> key(String path) {
-        return ResourceKey.create(Registries.ENCHANTMENT, Identifier.fromNamespaceAndPath(Exploration.ID, path));
+        return ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.fromNamespaceAndPath(Exploration.ID, path));
     }
 
     static final class Status extends MobEffect {
@@ -35,9 +35,10 @@ final class ExplorationEnchantments {
         @Override public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
             return withdrawal && duration % 20 == 0;
         }
-        @Override public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
+        @Override public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+            if (!(entity.level() instanceof ServerLevel level)) return true;
             if (thaumcraft.taint.TaintBiomes.isTainted(level, entity.blockPosition())) return false;
-            entity.hurtServer(level, level.damageSources().source(thaumcraft.damage.ModDamageTypes.TAINT), 1);
+            entity.hurt(level.damageSources().source(thaumcraft.damage.ModDamageTypes.TAINT), 1);
             return true;
         }
     }
@@ -56,7 +57,7 @@ final class ExplorationEnchantments {
         if (!(victim.level() instanceof ServerLevel level)
             || !(event.getSource().getDirectEntity() instanceof LivingEntity attacker)) return;
         int binding = enchantment(attacker, EquipmentSlot.MAINHAND, BINDING);
-        if (binding > 0) victim.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 50, 1));
+        if (binding > 0) victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 50, 1));
         if (binding > 1) victim.addEffect(new MobEffectInstance(Exploration.BINDING_EFFECT, 50));
         int disarm = enchantment(attacker, EquipmentSlot.MAINHAND, DISARM);
         if (disarm <= 0 || victim instanceof Player || victim.getMainHandItem().isEmpty()

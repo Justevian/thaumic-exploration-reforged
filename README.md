@@ -2,7 +2,7 @@
 
 **Русский** · [English](README.en.md)
 
-Неофициальный порт **Thaumic Exploration 1.1-53** с Minecraft 1.7.10 на **Minecraft 26.3** для [Thaumcraft 4: Reforged](https://github.com/notlikethiss/thaumcraft-4-reforged). Аддон добавляет свою вкладку с 31 исследованием в Таумономиконе. Доступны русский и английский языки.
+Неофициальный порт **Thaumic Exploration 1.1-53** с Minecraft 1.7.10 на **Minecraft 1.21.1** для [Thaumcraft 4: Reforged](https://github.com/notlikethiss/thaumcraft-4-reforged). Аддон добавляет свою вкладку с 31 исследованием в Таумономиконе. Доступны русский и английский языки.
 
 ## Что добавляет мод
 
@@ -13,15 +13,15 @@
 
 ## Установка
 
-1. Создайте профиль **Minecraft 26.3** с **NeoForge 26.3.0.102**.
-2. Скачайте JAR аддона из раздела [Releases](../../releases).
-3. Поместите его в папку `mods` вместе с **Thaumcraft 4: Reforged 1.1.3 для 26.3** и **TerraBlender 26.3-26.3.0.0.9**.
+1. Создайте профиль **Minecraft 1.21.1** с **NeoForge 21.1.256+**.
+2. Скачайте JAR из [релиза для 1.21.1](https://github.com/Justevian/thaumic-exploration-reforged/releases/tag/v0.1.18-alpha%2B1.21.1).
+3. Поместите его в папку `mods` вместе с **Thaumcraft 4: Reforged 1.1.3 для 1.21.1** и **TerraBlender 1.21.1-4.1.0.1** + **Curios 9.5.1+1.21.1**.
 
-[Скачать Thaumcraft 4: Reforged](https://github.com/notlikethiss/thaumcraft-4-reforged/releases/tag/26.3)
+[Скачать Thaumcraft 4: Reforged](https://github.com/notlikethiss/thaumcraft-4-reforged/releases/tag/1.21.1)
 
 ## Сборка из исходников
 
-Установите JDK 25, положите `thaumcraft-4-reforged-1.1.3-26.3.jar` в папку `libs` и запустите `./gradlew build` или `gradlew.bat build` на Windows. Готовый JAR появится в `build/libs`.
+Установите JDK 21, положите `thaumcraft-4-reforged-1.1.3-1.21.1.jar` в папку `libs` и запустите `./gradlew build` или `gradlew.bat build` на Windows. Готовый JAR появится в `build/libs`.
 
 ## Авторы и благодарности
 
@@ -32,3 +32,16 @@
 В порте адаптированы механики, текстуры и модели оригинала. Оригинальный проект распространяется по [CC BY-NC-SA 4.0](https://www.curseforge.com/minecraft/mc-mods/thaumic-exploration/license).
 
 Порт распространяется по [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+## Development checks
+
+Place the 1.21.1 NeoForge versions of TerraBlender and Curios in `libs` as well as Thaumcraft. The ZIP and JAR contain no dependencies. This is an experimental backport of the 26.3 branch. Use a separate 1.21.1 world.
+
+Use an isolated development world and accept the EULA in `run/eula.txt` before running the server checks:
+
+```sh
+./gradlew runServer -PportSmoke=true
+./gradlew runServer -PportSmoke=true -PverifySavedStorage=true
+```
+
+For the client check, copy `run/world` into `run/saves/exploration-port-smoke` and run `./gradlew runClient -PclientSmoke=true`. On Windows use `gradlew.bat`. These checks exit automatically and are excluded from the JAR.

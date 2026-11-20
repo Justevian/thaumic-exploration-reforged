@@ -2,12 +2,11 @@ package tx;
 
 import java.util.LinkedHashSet;
 import java.util.List;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import thaumcraft.Config;
 import thaumcraft.aspect.Aspect;
 import thaumcraft.aspect.AspectList;
 import thaumcraft.crafting.TcStack;
@@ -64,13 +63,13 @@ final class ExplorationResearchLayout {
         return ResearchPage.text("tc.research_page." + key + "." + page);
     }
 
-    private static Identifier icon(String file) {
-        return Identifier.fromNamespaceAndPath(Exploration.ID, "textures/tabs/" + file + ".png");
+    private static ResourceLocation icon(String file) {
+        return ResourceLocation.fromNamespaceAndPath(Exploration.ID, "textures/tabs/" + file + ".png");
     }
 
     static void add(String key, String item, ResearchPage... pages) {
         Layout layout = layout(key);
-        Identifier custom = switch (key) {
+        ResourceLocation custom = switch (key) {
             case "TX.CHEST" -> icon("chest_seals");
             case "TX.JAR" -> icon("jar_seals");
             case "TX.ENCHANT.binding" -> icon("binding");
@@ -82,7 +81,6 @@ final class ExplorationResearchLayout {
             ? new ResearchItem(key, Exploration.ID, layout.aspects(), layout.column(), layout.row(), layout.complexity(), TcStack.of(item))
             : new ResearchItem(key, Exploration.ID, layout.aspects(), layout.column(), layout.row(), layout.complexity(), custom);
         var hiddenParents = new LinkedHashSet<>(split(layout.hiddenParents()));
-        if (!Config.allowMirrors()) hiddenParents.remove("MIRROR");
         for (ResearchPage page : pages) {
             if (page instanceof ResearchPage.Infusion && !split(layout.parents()).contains("INFUSION")) hiddenParents.add("INFUSION");
         }

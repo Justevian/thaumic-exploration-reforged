@@ -15,8 +15,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
+
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -32,7 +33,7 @@ import thaumcraft.vis.VisNet;
 final class SoulBrazier extends Block implements EntityBlock {
     static final net.neoforged.neoforge.common.world.chunk.TicketController TICKETS =
         new net.neoforged.neoforge.common.world.chunk.TicketController(
-            net.minecraft.resources.Identifier.fromNamespaceAndPath(Exploration.ID, "soul_brazier"));
+            net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(Exploration.ID, "soul_brazier"));
     private static final String WARP = "tx_brazier_warp";
     private static final String POS = "tx_brazier_pos";
     private static final String DIMENSION = "tx_brazier_dimension";
@@ -68,9 +69,9 @@ final class SoulBrazier extends Block implements EntityBlock {
         return InteractionResult.SUCCESS;
     }
 
-    @Override protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean moved) {
-        forceChunk(level, pos, false);
-        super.affectNeighborsAfterRemoval(state, level, pos, moved);
+    @Override protected void onRemove(BlockState state, Level world, BlockPos pos, BlockState next, boolean moved) {
+        if (world instanceof ServerLevel level && !state.is(next.getBlock())) forceChunk(level, pos, false);
+        super.onRemove(state, world, pos, next, moved);
     }
 
     private static void forceChunk(ServerLevel level, BlockPos pos, boolean force) {
@@ -81,12 +82,12 @@ final class SoulBrazier extends Block implements EntityBlock {
     static void restoreWarp(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.tickCount % 20 != 0) return;
         var data = player.getPersistentData();
-        int warp = data.getIntOr(WARP, 0);
+        int warp = PortNbt.getIntOr(data, WARP, 0);
         if (warp <= 0) return;
-        BlockPos pos = BlockPos.of(data.getLongOr(POS, 0));
-        String dimension = data.getStringOr(DIMENSION, "");
+        BlockPos pos = BlockPos.of(PortNbt.getLongOr(data, POS, 0));
+        String dimension = PortNbt.getStringOr(data, DIMENSION, "");
         for (var level : player.level().getServer().getAllLevels()) {
-            if (!level.dimension().identifier().toString().equals(dimension)) continue;
+            if (!level.dimension().location().toString().equals(dimension)) continue;
             level.getChunk(pos);
             if (level.getBlockEntity(pos) instanceof Tile tile && tile.active && player.getUUID().equals(tile.owner)) return;
             break;
@@ -118,7 +119,7 @@ final class SoulBrazier extends Block implements EntityBlock {
             var data = player.getPersistentData();
             data.putInt(WARP, warp);
             data.putLong(POS, worldPosition.asLong());
-            data.putString(DIMENSION, level.dimension().identifier().toString());
+            data.putString(DIMENSION, level.dimension().location().toString());
             Warp.set(player, 0, WarpType.PERMANENT);
             active = true;
             forceChunk((ServerLevel) level, worldPosition, true);
@@ -178,16 +179,18 @@ final class SoulBrazier extends Block implements EntityBlock {
         @Override public int getMinimumSuction() { return 0; }
         @Override public boolean renderExtendedTube() { return true; }
 
-        @Override protected void loadAdditional(ValueInput input) {
-            super.loadAdditional(input);
+        @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+            var input = new PortNbt.Input(tag, registries);
+            super.loadAdditional(tag, registries);
             owner = input.read("owner", net.minecraft.core.UUIDUtil.CODEC).orElse(null);
             active = input.getBooleanOr("active", false);
             death = input.getIntOr("death", 0);
             fire = input.getIntOr("fire", 0);
         }
 
-        @Override protected void saveAdditional(ValueOutput output) {
-            super.saveAdditional(output);
+        @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+            var output = new PortNbt.Output(tag, registries);
+            super.saveAdditional(tag, registries);
             if (owner != null) output.store("owner", net.minecraft.core.UUIDUtil.CODEC, owner);
             output.putBoolean("active", active);
             output.putInt("death", death);

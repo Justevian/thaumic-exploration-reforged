@@ -9,19 +9,34 @@ import thaumcraft.client.render.EssentiaJarRenderer;
 @EventBusSubscriber(modid = Exploration.ID, value = Dist.CLIENT)
 final class ExplorationClient {
     @SubscribeEvent
-    static void candleColors(net.neoforged.neoforge.client.event.RegisterColorHandlersEvent.BlockTintSources event) {
+    static void candleColors(net.neoforged.neoforge.client.event.RegisterColorHandlersEvent.Block event) {
         int[] colors = thaumcraft.registry.ModBlocks.CANDLE_TINTS;
         for (int index = 0; index < Exploration.FLOATING_CANDLES.size(); index++) {
             int color = index < colors.length ? colors[index] : 0x1D1D21;
-            event.register(java.util.List.of(net.minecraft.client.color.block.BlockTintSources.constant(
-                net.minecraft.util.ARGB.opaque(color))), Exploration.FLOATING_CANDLES.get(index).get().getBlock());
+            event.register((state, level, pos, layer) -> layer == 0 ? 0xFF000000 | color : -1,
+                Exploration.FLOATING_CANDLES.get(index).get().getBlock());
         }
     }
 
     @SubscribeEvent
-    static void itemRenderers(net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent event) {
-        event.register(net.minecraft.resources.Identifier.fromNamespaceAndPath(Exploration.ID, "think_tank"),
-            ThinkTankItemRenderer.Unbaked.CODEC);
+    static void candleItemColors(net.neoforged.neoforge.client.event.RegisterColorHandlersEvent.Item event) {
+        int[] colors = thaumcraft.registry.ModBlocks.CANDLE_TINTS;
+        for (int index = 0; index < Exploration.FLOATING_CANDLES.size(); index++) {
+            int color = index < colors.length ? colors[index] : 0x1D1D21;
+            event.register((stack, layer) -> layer == 0 ? 0xFF000000 | color : -1,
+                Exploration.FLOATING_CANDLES.get(index).get());
+        }
+    }
+
+    @SubscribeEvent
+    static void itemRenderers(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent event) {
+        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+            private ThinkTankItemRenderer renderer;
+            @Override public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) renderer = new ThinkTankItemRenderer();
+                return renderer;
+            }
+        }, Exploration.THINK_TANK_ITEM.get());
     }
 
     @SubscribeEvent static void renderers(EntityRenderersEvent.RegisterRenderers event) {

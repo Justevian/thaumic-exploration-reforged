@@ -11,7 +11,7 @@ final class CometIce extends Block {
     CometIce(Properties properties) { super(properties); }
 
     @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        level.setBlockAndUpdate(pos, level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.WATER_EVAPORATES, pos) ? Blocks.AIR.defaultBlockState()
+        level.setBlockAndUpdate(pos, level.dimensionType().ultraWarm() ? Blocks.AIR.defaultBlockState()
             : Blocks.WATER.defaultBlockState());
     }
 

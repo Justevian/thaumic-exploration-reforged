@@ -16,15 +16,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 import thaumcraft.item.golem.GolemBellItem;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 @EventBusSubscriber(modid = Exploration.ID)
 final class Sorter extends Block implements EntityBlock {
@@ -53,16 +54,16 @@ final class Sorter extends Block implements EntityBlock {
                 CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
                     if (player.isShiftKeyDown()) tag.remove(LINK);
                     else tag.putLong(LINK, pos.asLong());
-                    tag.putString(LINK + "_dimension", level.dimension().identifier().toString());
+                    tag.putString(LINK + "_dimension", level.dimension().location().toString());
                 });
                 player.sendSystemMessage(Component.translatable(player.isShiftKeyDown()
                     ? "message.thaumicexploration.sorter_cleared" : "message.thaumicexploration.sorter_selected"));
             }
         } else {
-            if (!data.contains(LINK) || !level.dimension().identifier().toString().equals(data.getStringOr(LINK + "_dimension", ""))) return;
-            var origin = BlockPos.of(data.getLongOr(LINK, 0));
+            if (!data.contains(LINK) || !level.dimension().location().toString().equals(PortNbt.getStringOr(data, LINK + "_dimension", ""))) return;
+            var origin = BlockPos.of(PortNbt.getLongOr(data, LINK, 0));
             if (!level.hasChunkAt(origin) || !(level.getBlockEntity(origin) instanceof Tile tile)
-                || origin.distSqr(pos) > 256 || level.getCapability(Capabilities.Item.BLOCK, pos, event.getFace()) == null) return;
+                || origin.distSqr(pos) > 256 || level.getCapability(Capabilities.ItemHandler.BLOCK, pos, event.getFace()) == null) return;
             if (level instanceof ServerLevel server && server.mayInteract(player, origin) && server.mayInteract(player, pos)) {
                 boolean input = player.isShiftKeyDown();
                 boolean linked = tile.toggle(new Endpoint(pos, event.getFace(), input));
@@ -101,41 +102,49 @@ final class Sorter extends Block implements EntityBlock {
         boolean transfer(ServerLevel level) {
             for (var from : endpoints) {
                 if (!from.input || !level.hasChunkAt(from.pos)) continue;
-                var source = level.getCapability(Capabilities.Item.BLOCK, from.pos, from.side);
+                var source = level.getCapability(Capabilities.ItemHandler.BLOCK, from.pos, from.side);
                 if (source == null) continue;
-                for (int slot = 0; slot < source.size(); slot++) {
-                    var item = source.getResource(slot);
+                for (int slot = 0; slot < source.getSlots(); slot++) {
+                    var item = source.extractItem(slot, 1, true);
                     if (item.isEmpty()) continue;
                     for (var to : endpoints) {
                         if (to.input || !level.hasChunkAt(to.pos)) continue;
-                        var destination = level.getCapability(Capabilities.Item.BLOCK, to.pos, to.side);
+                        var destination = level.getCapability(Capabilities.ItemHandler.BLOCK, to.pos, to.side);
                         if (destination == null || destination == source) continue;
                         boolean matching = false;
-                        for (int index = 0; index < destination.size(); index++) {
-                            if (item.equals(destination.getResource(index))) { matching = true; break; }
+                        for (int index = 0; index < destination.getSlots(); index++) {
+                            if (ItemStack.isSameItemSameComponents(item, destination.getStackInSlot(index))) { matching = true; break; }
                         }
                         if (!matching) continue;
-                        try (var transaction = Transaction.openRoot()) {
-                            if (source.extract(slot, item, 1, transaction) == 1
-                                && ResourceHandlerUtil.insertStacking(destination, item, 1, transaction) == 1) {
-                                transaction.commit();
-                                return true;
-                            }
+                        if (!ItemHandlerHelper.insertItemStacked(destination, item, true).isEmpty()) continue;
+                        ItemStack extracted = source.extractItem(slot, 1, false);
+                        if (extracted.isEmpty()) continue;
+                        ItemStack remainder = ItemStack.isSameItemSameComponents(item, extracted)
+                            ? ItemHandlerHelper.insertItemStacked(destination, extracted, false) : extracted;
+                        if (remainder.isEmpty()) return true;
+                        remainder = source.insertItem(slot, remainder, false);
+                        if (!remainder.isEmpty()) remainder = ItemHandlerHelper.insertItemStacked(source, remainder, false);
+                        if (!remainder.isEmpty()) {
+                            net.minecraft.world.Containers.dropItemStack(level,
+                                from.pos.getX() + 0.5, from.pos.getY() + 0.5, from.pos.getZ() + 0.5, remainder);
                         }
+                        return false;
                     }
                 }
             }
             return false;
         }
 
-        @Override protected void loadAdditional(ValueInput input) {
-            super.loadAdditional(input);
+        @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+            var input = new PortNbt.Input(tag, registries);
+            super.loadAdditional(tag, registries);
             endpoints.clear();
             endpoints.addAll(input.read("endpoints", Endpoint.CODEC.listOf()).orElse(List.of()));
         }
 
-        @Override protected void saveAdditional(ValueOutput output) {
-            super.saveAdditional(output);
+        @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+            var output = new PortNbt.Output(tag, registries);
+            super.saveAdditional(tag, registries);
             output.store("endpoints", Endpoint.CODEC.listOf(), endpoints);
         }
     }

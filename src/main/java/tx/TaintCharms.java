@@ -44,10 +44,10 @@ final class TaintCharms {
         if (!(player.level() instanceof ServerLevel level) || player.isSpectator() || !player.isAlive()) return;
         var data = player.getPersistentData();
         if (!carries(player, Exploration.TAINT_CHARM.get())) {
-            if (data.getBooleanOr(CURSE, false)) {
+            if (PortNbt.getBooleanOr(data, CURSE, false)) {
                 data.remove(CURSE);
                 data.remove(GRACE);
-                if (!player.isCreative()) player.hurtServer(level, player.damageSources().magic(), 999);
+                if (!player.isCreative()) player.hurt(player.damageSources().magic(), 999);
             }
             return;
         }
@@ -58,7 +58,7 @@ final class TaintCharms {
             if (player.tickCount % 80 == 0 && player.getFoodData().getFoodLevel() < 4) player.getFoodData().eat(1, 0);
             return;
         }
-        int ticks = data.getIntOr(GRACE, 0) + 1;
+        int ticks = PortNbt.getIntOr(data, GRACE, 0) + 1;
         if (ticks > 100) {
             for (int slot = 0; slot < 10; slot++) {
                 var stack = player.getInventory().getItem(slot);
@@ -88,7 +88,7 @@ final class TaintCharms {
             }
         }
         if (spots.isEmpty()) return false;
-        var minion = Exploration.MINION.get().create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
+        var minion = Exploration.MINION.get().create(level);
         if (minion == null) return false;
         var pos = spots.get(level.getRandom().nextInt(spots.size()));
         minion.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);

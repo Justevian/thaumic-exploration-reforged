@@ -18,21 +18,20 @@ final class FoodTalisman extends Item {
         super(properties.stacksTo(1));
     }
 
-    @Override public void inventoryTick(ItemStack stack, ServerLevel level, Entity owner, EquipmentSlot slot) {
-        if (!(owner instanceof Player player) || player.isCreative() || player.isSpectator()
+    @Override public void inventoryTick(ItemStack stack, net.minecraft.world.level.Level level, Entity owner, int slot, boolean selected) {
+        if (level.isClientSide() || !(owner instanceof Player player) || player.isCreative() || player.isSpectator()
             || owner.tickCount % 20 != 0) return;
 
         var data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        int storedFood = data.getIntOr("food", 0);
-        float storedSaturation = data.getFloatOr("saturation", 0);
+        int storedFood = PortNbt.getIntOr(data, "food", 0);
+        float storedSaturation = PortNbt.getFloatOr(data, "saturation", 0);
         var inventory = player.getInventory();
         boolean ate = false;
         for (int index = 0; index < 10; index++) {
             ItemStack candidate = inventory.getItem(index);
             var food = candidate.get(DataComponents.FOOD);
-            var consumable = candidate.get(DataComponents.CONSUMABLE);
-            if (food == null || consumable == null || !consumable.onConsumeEffects().isEmpty()
-                || candidate.has(DataComponents.USE_REMAINDER) || candidate.is(ModBlocks.MANA_BEAN)
+            if (food == null || !food.effects().isEmpty()
+                || food.usingConvertsTo().isPresent() || candidate.is(ModBlocks.MANA_BEAN)
                 || food.nutrition() <= 0 || storedFood + food.nutrition() > CAPACITY) continue;
             storedFood += food.nutrition();
             storedSaturation = Math.min(CAPACITY, storedSaturation + food.saturation());
@@ -41,7 +40,7 @@ final class FoodTalisman extends Item {
         }
         if (ate) {
             inventory.setChanged();
-            player.playSound(SoundEvents.GENERIC_EAT.value(), 0.6F, 1);
+            player.playSound(SoundEvents.GENERIC_EAT, 0.6F, 1);
         }
 
         var hunger = player.getFoodData();

@@ -16,8 +16,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
+
 import net.minecraft.world.phys.BlockHitResult;
 import thaumcraft.registry.ModItems;
 
@@ -31,11 +32,11 @@ final class ThinkTank extends Block implements EntityBlock {
             ? (world, pos, current, entity) -> ((Tile) entity).tick(world, pos) : null;
     }
 
-    @Override protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    @Override protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
         Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!(level.getBlockEntity(pos) instanceof Tile tank) || !Tile.isBook(stack)) return InteractionResult.PASS;
+        if (!(level.getBlockEntity(pos) instanceof Tile tank) || !Tile.isBook(stack)) return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide() && tank.input.addItem(stack.copyWithCount(1)).isEmpty() && !player.isCreative()) stack.shrink(1);
-        return InteractionResult.SUCCESS;
+        return net.minecraft.world.ItemInteractionResult.SUCCESS;
     }
 
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
@@ -111,15 +112,17 @@ final class ThinkTank extends Block implements EntityBlock {
             return true;
         }
 
-        @Override protected void loadAdditional(ValueInput inputData) {
-            super.loadAdditional(inputData);
+        @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+            var inputData = new PortNbt.Input(tag, registries);
+            super.loadAdditional(tag, registries);
             input.setItem(0, inputData.read("books", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
             output.setItem(0, inputData.read("fragments", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY));
             progress = inputData.getIntOr("progress", 0);
         }
 
-        @Override protected void saveAdditional(ValueOutput data) {
-            super.saveAdditional(data);
+        @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+            var data = new PortNbt.Output(tag, registries);
+            super.saveAdditional(tag, registries);
             data.store("books", ItemStack.OPTIONAL_CODEC, input.getItem(0));
             data.store("fragments", ItemStack.OPTIONAL_CODEC, output.getItem(0));
             data.putInt("progress", progress);

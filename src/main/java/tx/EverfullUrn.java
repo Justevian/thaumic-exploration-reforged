@@ -13,9 +13,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import thaumcraft.alchemy.CrucibleBlockEntity;
 import thaumcraft.aspect.Aspect;
 import thaumcraft.network.EssentiaSourceFxPayload;
@@ -40,15 +37,15 @@ final class EverfullUrn extends Block implements EntityBlock {
     }
 
     @Override
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
         Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!stack.is(Items.BUCKET) && !stack.is(Items.GLASS_BOTTLE)) return InteractionResult.PASS;
+        if (!stack.is(Items.BUCKET) && !stack.is(Items.GLASS_BOTTLE)) return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide()) {
             ItemStack result = stack.is(Items.BUCKET) ? new ItemStack(Items.WATER_BUCKET)
                 : net.minecraft.world.item.alchemy.PotionContents.createItemStack(Items.POTION, net.minecraft.world.item.alchemy.Potions.WATER);
             player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, result));
         }
-        return InteractionResult.SUCCESS;
+        return net.minecraft.world.ItemInteractionResult.SUCCESS;
     }
 
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
@@ -64,22 +61,22 @@ final class EverfullUrn extends Block implements EntityBlock {
         return (world, pos, current, entity) -> ((Tile) entity).tick((ServerLevel) world, pos);
     }
 
-    static final class WaterOutput implements ResourceHandler<FluidResource> {
+    static final class WaterOutput implements net.neoforged.neoforge.fluids.capability.IFluidHandler {
         private static final int CAPACITY = 9999;
-        private static final FluidResource WATER = FluidResource.of(Fluids.WATER);
-
-        @Override public int size() { return 1; }
-        @Override public FluidResource getResource(int index) { return index == 0 ? WATER : FluidResource.EMPTY; }
-        @Override public long getAmountAsLong(int index) { return index == 0 ? CAPACITY : 0; }
-        @Override public long getCapacityAsLong(int index, FluidResource resource) {
-            return index == 0 && (resource.equals(WATER) || resource.isEmpty()) ? CAPACITY : 0;
+        @Override public int getTanks() { return 1; }
+        @Override public net.neoforged.neoforge.fluids.FluidStack getFluidInTank(int tank) {
+            return tank == 0 ? drain(CAPACITY, FluidAction.SIMULATE) : net.neoforged.neoforge.fluids.FluidStack.EMPTY;
         }
-        @Override public boolean isValid(int index, FluidResource resource) { return false; }
-        @Override public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            return 0;
+        @Override public int getTankCapacity(int tank) { return tank == 0 ? CAPACITY : 0; }
+        @Override public boolean isFluidValid(int tank, net.neoforged.neoforge.fluids.FluidStack fluid) { return false; }
+        @Override public int fill(net.neoforged.neoforge.fluids.FluidStack fluid, FluidAction action) { return 0; }
+        @Override public net.neoforged.neoforge.fluids.FluidStack drain(net.neoforged.neoforge.fluids.FluidStack fluid, FluidAction action) {
+            return net.neoforged.neoforge.fluids.FluidStack.isSameFluidSameComponents(fluid, getFluidInTank(0))
+                ? drain(fluid.getAmount(), action) : net.neoforged.neoforge.fluids.FluidStack.EMPTY;
         }
-        @Override public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            return index == 0 && resource.equals(WATER) ? Math.clamp(amount, 0, CAPACITY) : 0;
+        @Override public net.neoforged.neoforge.fluids.FluidStack drain(int amount, FluidAction action) {
+            return amount > 0 ? new net.neoforged.neoforge.fluids.FluidStack(Fluids.WATER, Math.min(amount, CAPACITY))
+                : net.neoforged.neoforge.fluids.FluidStack.EMPTY;
         }
     }
 

@@ -1,6 +1,6 @@
 package tx;
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -36,7 +36,7 @@ final class ExplorationAccessories {
     }
 
     static final class Belt extends Item implements Bauble {
-        private static final Identifier RESISTANCE = Identifier.fromNamespaceAndPath(Exploration.ID, "stabilizer_belt");
+        private static final ResourceLocation RESISTANCE = ResourceLocation.fromNamespaceAndPath(Exploration.ID, "stabilizer_belt");
 
         Belt(Properties properties) { super(properties.stacksTo(1)); }
         @Override public BaubleType getBaubleType(ItemStack stack) { return BaubleType.BELT; }

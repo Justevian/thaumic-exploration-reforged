@@ -3,18 +3,27 @@ package tx;
 import com.mojang.serialization.Codec;
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.core.HolderLookup;
 
 final class BoundStorage extends SavedData {
     private static final Codec<BoundStorage> CODEC = Codec.unboundedMap(Codec.STRING, ItemContainerContents.CODEC)
         .xmap(BoundStorage::new, BoundStorage::snapshot);
-    private static final SavedDataType<BoundStorage> TYPE = new SavedDataType<>(
-        Identifier.parse("thaumicexploration:bound_storage"), () -> new BoundStorage(Map.of()), CODEC);
+    private static final SavedData.Factory<BoundStorage> TYPE = new SavedData.Factory<>(
+        () -> new BoundStorage(Map.of()), (tag, registries) -> CODEC.parse(
+            registries.createSerializationContext(NbtOps.INSTANCE), tag.getCompound("channels")).getOrThrow(), null);
+
+    @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.put("channels", CODEC.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), this).getOrThrow());
+        return tag;
+    }
+
     private final Map<String, SimpleContainer> channels = new HashMap<>();
 
     private BoundStorage(Map<String, ItemContainerContents> saved) {
@@ -34,7 +43,11 @@ final class BoundStorage extends SavedData {
     }
 
     static SimpleContainer inventory(ServerLevel level, String channel) {
-        BoundStorage storage = level.getServer().overworld().getDataStorage().computeIfAbsent(TYPE);
+        return inventory(level.getServer().overworld().getDataStorage(), channel);
+    }
+
+    static SimpleContainer inventory(DimensionDataStorage data, String channel) {
+        BoundStorage storage = data.computeIfAbsent(TYPE, "thaumicexploration_bound_storage");
         return storage.channels.computeIfAbsent(channel, key -> storage.newInventory());
     }
 

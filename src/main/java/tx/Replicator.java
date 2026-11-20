@@ -18,8 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import thaumcraft.compat.ValueInput;
+import thaumcraft.compat.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import thaumcraft.aspect.AspectHelper;
 import thaumcraft.aspect.AspectList;
@@ -37,14 +37,14 @@ final class Replicator extends Block implements EntityBlock, WandInteractable {
             ? (world, pos, current, entity) -> ((Tile) entity).tick(world.hasNeighborSignal(pos)) : null;
     }
 
-    @Override protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+    @Override protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
         Player player, InteractionHand hand, BlockHitResult hit) {
-        if (Wands.isWand(stack)) return onWandUseOn(level, pos, player, stack, hit.getDirection());
-        if (!(level.getBlockEntity(pos) instanceof Tile tile)) return InteractionResult.PASS;
-        if (!tile.output.isEmpty()) return useWithoutItem(state, level, pos, player, hit);
-        if (!allowed(stack)) return InteractionResult.PASS;
+        if (Wands.isWand(stack)) return PortInteractions.item(onWandUseOn(level, pos, player, stack, hit.getDirection()));
+        if (!(level.getBlockEntity(pos) instanceof Tile tile)) return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (!tile.output.isEmpty()) return PortInteractions.item(useWithoutItem(state, level, pos, player, hit));
+        if (!allowed(stack)) return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide()) tile.setSample(stack);
-        return InteractionResult.SUCCESS;
+        return net.minecraft.world.ItemInteractionResult.SUCCESS;
     }
 
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,

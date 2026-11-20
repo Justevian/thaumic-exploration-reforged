@@ -2,7 +2,7 @@ package tx;
 
 import java.util.List;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,8 +23,8 @@ final class ExplorationCaps {
     static void register() {
         for (String cap : List.of(SOJOURNER, MECHANIST)) {
             WandRegistry.registerCap(cap, 0.95F, List.of(), 0,
-                Identifier.fromNamespaceAndPath(Exploration.ID, cap + "_wand_cap"), 6, null,
-                Identifier.fromNamespaceAndPath(Exploration.ID, "textures/model/" + cap + "_wand_cap.png"));
+                ResourceLocation.fromNamespaceAndPath(Exploration.ID, cap + "_wand_cap"), 6, null,
+                ResourceLocation.fromNamespaceAndPath(Exploration.ID, "textures/model/" + cap + "_wand_cap.png"));
         }
     }
 

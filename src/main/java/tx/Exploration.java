@@ -8,7 +8,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 @Mod(Exploration.ID)
 public final class Exploration {
@@ -19,13 +19,13 @@ public final class Exploration {
         BINDING_EFFECT = EFFECTS.register("binding", () -> new ExplorationEnchantments.Status(false));
     static final net.neoforged.neoforge.registries.DeferredHolder<net.minecraft.world.effect.MobEffect, net.minecraft.world.effect.MobEffect>
         WITHDRAWAL = EFFECTS.register("taint_withdrawal", () -> new ExplorationEnchantments.Status(true));
-    private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ID);
-    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ID);
+    private static final PortRegistration.Blocks BLOCKS = new PortRegistration.Blocks(ID);
+    private static final PortRegistration.Items ITEMS = new PortRegistration.Items(ID);
     private static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ID);
     static final net.neoforged.neoforge.registries.DeferredBlock<BoundChest> CHEST = BLOCKS.registerBlock(
         "bound_chest", BoundChest::new, p -> p.strength(2.5F));
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<BoundChest.Tile>> CHEST_TILE =
-        TILES.register("bound_chest", () -> new BlockEntityType<>(BoundChest.Tile::new, CHEST.get()));
+        TILES.register("bound_chest", () -> BlockEntityType.Builder.of(BoundChest.Tile::new, CHEST.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredBlock<CometIce> COMET_ICE =
         BLOCKS.registerBlock("comet_ice", CometIce::new, p -> p.strength(0.5F).friction(0.98F).noOcclusion().randomTicks());
     static final net.neoforged.neoforge.registries.DeferredItem<BoundChest.Seal> LINKED_SEAL =
@@ -38,7 +38,7 @@ public final class Exploration {
     static final net.neoforged.neoforge.registries.DeferredBlock<EverfullUrn> URN =
         BLOCKS.registerBlock("everfull_urn", EverfullUrn::new, p -> p.strength(1.5F).noOcclusion());
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<EverfullUrn.Tile>> URN_TILE =
-        TILES.register("everfull_urn", () -> new BlockEntityType<>(EverfullUrn.Tile::new, URN.get()));
+        TILES.register("everfull_urn", () -> BlockEntityType.Builder.of(EverfullUrn.Tile::new, URN.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.BlockItem> URN_ITEM =
         ITEMS.registerSimpleBlockItem(URN);
     static final net.neoforged.neoforge.registries.DeferredBlock<EverburnUrn> EVERBURN =
@@ -46,17 +46,17 @@ public final class Exploration {
     static final net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.BlockItem> EVERBURN_ITEM =
         ITEMS.registerSimpleBlockItem(EVERBURN);
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<EverburnUrn.Tile>> EVERBURN_TILE =
-        TILES.register("everburn_urn", () -> new BlockEntityType<>(EverburnUrn.Tile::new, EVERBURN.get()));
+        TILES.register("everburn_urn", () -> BlockEntityType.Builder.of(EverburnUrn.Tile::new, EVERBURN.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredBlock<SoulCrucible> SOUL_CRUCIBLE =
         BLOCKS.registerBlock("soul_crucible", SoulCrucible::new, p -> p.strength(2).noOcclusion());
     static final net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.BlockItem> SOUL_CRUCIBLE_ITEM =
         ITEMS.registerSimpleBlockItem(SOUL_CRUCIBLE);
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<SoulCrucible.Tile>> SOUL_CRUCIBLE_TILE =
-        TILES.register("soul_crucible", () -> new BlockEntityType<>(SoulCrucible.Tile::new, SOUL_CRUCIBLE.get()));
+        TILES.register("soul_crucible", () -> BlockEntityType.Builder.of(SoulCrucible.Tile::new, SOUL_CRUCIBLE.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredBlock<BoundJar> JAR =
         BLOCKS.registerBlock("bound_jar", BoundJar::new, p -> p.strength(0.3F).noOcclusion());
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<BoundJar.Tile>> JAR_TILE =
-        TILES.register("bound_jar", () -> new BlockEntityType<>(BoundJar.Tile::new, JAR.get()));
+        TILES.register("bound_jar", () -> BlockEntityType.Builder.of(BoundJar.Tile::new, JAR.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredItem<BoundJar.Seal> JAR_SEAL =
         ITEMS.registerItem("jar_binding_seal", BoundJar.Seal::new);
     static final net.neoforged.neoforge.registries.DeferredBlock<Sorter> SORTER =
@@ -64,25 +64,25 @@ public final class Exploration {
     static final net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.BlockItem> SORTER_ITEM =
         ITEMS.registerSimpleBlockItem(SORTER);
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<Sorter.Tile>> SORTER_TILE =
-        TILES.register("auto_sorter", () -> new BlockEntityType<>(Sorter.Tile::new, SORTER.get()));
+        TILES.register("auto_sorter", () -> BlockEntityType.Builder.of(Sorter.Tile::new, SORTER.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredBlock<SoulBrazier> BRAZIER =
         BLOCKS.registerBlock("soul_brazier", SoulBrazier::new, p -> p.strength(2.5F).noOcclusion());
     static final net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.BlockItem> BRAZIER_ITEM =
         ITEMS.registerSimpleBlockItem(BRAZIER);
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<SoulBrazier.Tile>> BRAZIER_TILE =
-        TILES.register("soul_brazier", () -> new BlockEntityType<>(SoulBrazier.Tile::new, BRAZIER.get()));
+        TILES.register("soul_brazier", () -> BlockEntityType.Builder.of(SoulBrazier.Tile::new, BRAZIER.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredBlock<Replicator> REPLICATOR =
         BLOCKS.registerBlock("replicator", Replicator::new, p -> p.strength(2.5F));
     static final net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.BlockItem> REPLICATOR_ITEM =
         ITEMS.registerSimpleBlockItem(REPLICATOR);
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<Replicator.Tile>> REPLICATOR_TILE =
-        TILES.register("replicator", () -> new BlockEntityType<>(Replicator.Tile::new, REPLICATOR.get()));
+        TILES.register("replicator", () -> BlockEntityType.Builder.of(Replicator.Tile::new, REPLICATOR.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredBlock<ThinkTank> THINK_TANK =
         BLOCKS.registerBlock("think_tank", ThinkTank::new, p -> p.strength(1.5F).noOcclusion());
     static final net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.BlockItem> THINK_TANK_ITEM =
         ITEMS.registerSimpleBlockItem(THINK_TANK);
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<ThinkTank.Tile>> THINK_TANK_TILE =
-        TILES.register("think_tank", () -> new BlockEntityType<>(ThinkTank.Tile::new, THINK_TANK.get()));
+        TILES.register("think_tank", () -> BlockEntityType.Builder.of(ThinkTank.Tile::new, THINK_TANK.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredItem<Item> PURE_BRAIN = ITEMS.registerSimpleItem("pure_zombie_brain");
     static final net.neoforged.neoforge.registries.DeferredItem<ExplorationAccessories.Belt> STABILIZER =
         ITEMS.registerItem("stabilizer_belt", ExplorationAccessories.Belt::new);
@@ -95,16 +95,17 @@ public final class Exploration {
     static final net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.BlockItem> TRASH_ITEM =
         ITEMS.registerSimpleBlockItem(TRASH);
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<TrashJar.Tile>> TRASH_TILE =
-        TILES.register("trash_jar", () -> new BlockEntityType<>(TrashJar.Tile::new, TRASH.get()));
+        TILES.register("trash_jar", () -> BlockEntityType.Builder.of(TrashJar.Tile::new, TRASH.get()).build(null));
     static final net.neoforged.neoforge.registries.DeferredItem<Item> METEOR = ITEMS.registerItem(
-        "meteor_boots", Item::new, p -> ExplorationBoots.properties(p, "meteor_boots"));
+        "meteor_boots", p -> ExplorationBoots.create(p, "meteor_boots"));
     static final net.neoforged.neoforge.registries.DeferredItem<Item> COMET = ITEMS.registerItem(
-        "comet_boots", Item::new, p -> ExplorationBoots.properties(p, "comet_boots"));
-    private static final DeferredRegister.Entities ENTITIES = DeferredRegister.createEntities(ID);
+        "comet_boots", p -> ExplorationBoots.create(p, "comet_boots"));
+    private static final DeferredRegister<net.minecraft.world.entity.EntityType<?>> ENTITIES = DeferredRegister.create(Registries.ENTITY_TYPE, ID);
     static final net.neoforged.neoforge.registries.DeferredHolder<net.minecraft.world.entity.EntityType<?>,
         net.minecraft.world.entity.EntityType<TentacleMinion>> MINION =
-        ENTITIES.registerEntityType("tentacle_minion", TentacleMinion::new, net.minecraft.world.entity.MobCategory.MISC,
-            builder -> builder.sized(0.22F, 1.0F).clientTrackingRange(8));
+        ENTITIES.register("tentacle_minion", () -> net.minecraft.world.entity.EntityType.Builder
+            .<TentacleMinion>of(TentacleMinion::new, net.minecraft.world.entity.MobCategory.MISC)
+            .sized(0.22F, 1.0F).clientTrackingRange(8).build("thaumicexploration:tentacle_minion"));
     static final net.neoforged.neoforge.registries.DeferredItem<ExplorationAccessories.TentacleRing> TENTACLE_RING =
         ITEMS.registerItem("tentacle_ring", ExplorationAccessories.TentacleRing::new);
     static final net.neoforged.neoforge.registries.DeferredItem<Item> TAINT_BERRY =
@@ -129,10 +130,10 @@ public final class Exploration {
     static final java.util.List<net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.BlockItem>>
         FLOATING_CANDLES = java.util.Arrays.stream(thaumcraft.registry.ModBlocks.CANDLE_COLORS).map(color ->
             ITEMS.registerSimpleBlockItem(BLOCKS.registerBlock(color + "_floating_candle", FloatingCandle::new,
-                p -> p.strength(0.1F).noCollision().noOcclusion().lightLevel(state -> 14)))).toList();
+                p -> p.strength(0.1F).noCollission().noOcclusion().lightLevel(state -> 14)))).toList();
     static final net.neoforged.neoforge.registries.DeferredHolder<BlockEntityType<?>, BlockEntityType<FloatingCandle.Tile>>
-        FLOATING_CANDLE_TILE = TILES.register("floating_candle", () -> new BlockEntityType<>(FloatingCandle.Tile::new,
-            FLOATING_CANDLES.stream().map(item -> item.get().getBlock()).toArray(net.minecraft.world.level.block.Block[]::new)));
+        FLOATING_CANDLE_TILE = TILES.register("floating_candle", () -> BlockEntityType.Builder.of(FloatingCandle.Tile::new,
+            FLOATING_CANDLES.stream().map(item -> item.get().getBlock()).toArray(net.minecraft.world.level.block.Block[]::new)).build(null));
     static final net.neoforged.neoforge.registries.DeferredRegister<net.minecraft.world.item.CreativeModeTab> TABS =
         DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ID);
 
@@ -187,15 +188,15 @@ public final class Exploration {
     }
 
     private void capabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.Fluid.BLOCK, EVERBURN_TILE.get(), (tile, side) ->
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, EVERBURN_TILE.get(), (tile, side) ->
             side == net.minecraft.core.Direction.UP ? tile.lava : null);
-        event.registerBlock(Capabilities.Fluid.BLOCK, (level, pos, state, tile, side) ->
+        event.registerBlock(Capabilities.FluidHandler.BLOCK, (level, pos, state, tile, side) ->
             side == net.minecraft.core.Direction.UP ? new EverfullUrn.WaterOutput() : null, URN.get());
-        event.registerBlockEntity(Capabilities.Item.BLOCK, THINK_TANK_TILE.get(), (tile, side) ->
-            side == net.minecraft.core.Direction.UP ? VanillaContainerWrapper.of(tile.input)
-                : VanillaContainerWrapper.of(tile.output));
-        event.registerBlockEntity(Capabilities.Item.BLOCK, CHEST_TILE.get(), (tile, side) ->
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, THINK_TANK_TILE.get(), (tile, side) ->
+            side == net.minecraft.core.Direction.UP ? new InvWrapper(tile.input)
+                : new InvWrapper(tile.output));
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, CHEST_TILE.get(), (tile, side) ->
             tile.getLevel() instanceof net.minecraft.server.level.ServerLevel && tile.linked()
-                ? VanillaContainerWrapper.of(tile.inventory()) : null);
+                ? new InvWrapper(tile.inventory()) : null);
     }
 }

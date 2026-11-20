@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -17,9 +17,11 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.saveddata.SavedDataType;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.core.HolderLookup;
+import thaumcraft.compat.ValueInput;
+import thaumcraft.compat.ValueOutput;
 import thaumcraft.aspect.Aspect;
 import thaumcraft.aspect.AspectList;
 import thaumcraft.essentia.JarBlock;
@@ -69,7 +71,7 @@ final class BoundJar extends JarBlock {
 
         private Storage storage() {
             return level instanceof ServerLevel server && !channel.isEmpty()
-                ? server.getServer().overworld().getDataStorage().computeIfAbsent(Storage.TYPE) : null;
+                ? server.getServer().overworld().getDataStorage().computeIfAbsent(Storage.TYPE, "thaumicexploration_bound_essentia") : null;
         }
 
         private void refresh() {
@@ -129,8 +131,14 @@ final class BoundJar extends JarBlock {
     private static final class Storage extends SavedData {
         private static final Codec<Storage> CODEC = Codec.unboundedMap(Codec.STRING, AspectList.CODEC)
             .xmap(Storage::new, data -> data.channels);
-        private static final SavedDataType<Storage> TYPE = new SavedDataType<>(
-            Identifier.parse("thaumicexploration:bound_essentia"), () -> new Storage(Map.of()), CODEC);
+        private static final SavedData.Factory<Storage> TYPE = new SavedData.Factory<>(
+            () -> new Storage(Map.of()), (tag, registries) -> CODEC.parse(
+                registries.createSerializationContext(NbtOps.INSTANCE), tag.getCompound("channels")).getOrThrow(), null);
+
+        @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+            tag.put("channels", CODEC.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), this).getOrThrow());
+            return tag;
+        }
         private final Map<String, AspectList> channels;
 
         private Storage(Map<String, AspectList> channels) {
@@ -151,7 +159,7 @@ final class BoundJar extends JarBlock {
             if (!server.mayInteract(player, pos) || !(server.getBlockEntity(pos) instanceof JarBlockEntity original)
                 || original.getAmount() != 0 || original.getAspectFilter() != null) return InteractionResult.FAIL;
             var key = net.minecraft.core.component.DataComponents.CUSTOM_DATA;
-            var channel = stack.getOrDefault(key, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getStringOr("channel", "");
+            var channel = stack.getOrDefault(key, net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getString("channel");
             String link = channel.isEmpty() ? UUID.randomUUID().toString() : channel;
             if (!server.setBlockAndUpdate(pos, Exploration.JAR.get().defaultBlockState())
                 || !(server.getBlockEntity(pos) instanceof Tile tile)) return InteractionResult.FAIL;

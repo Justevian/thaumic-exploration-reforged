@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -27,8 +27,8 @@ import thaumcraft.platform.TcArmorMaterial;
 
 @EventBusSubscriber(modid = Exploration.ID)
 final class ExplorationBoots {
-    private static final Identifier SPEED = Identifier.fromNamespaceAndPath(Exploration.ID, "boots_speed");
-    private static final Identifier STEP = Identifier.fromNamespaceAndPath(Exploration.ID, "boots_step");
+    private static final ResourceLocation SPEED = ResourceLocation.fromNamespaceAndPath(Exploration.ID, "boots_speed");
+    private static final ResourceLocation STEP = ResourceLocation.fromNamespaceAndPath(Exploration.ID, "boots_step");
     private static final Map<Player, Motion> MOTION = new WeakHashMap<>();
 
     private static final class Motion {
@@ -40,11 +40,14 @@ final class ExplorationBoots {
         double z;
     }
 
-    static Item.Properties properties(Item.Properties properties, String id) {
-        var material = new TcArmorMaterial(25, 1, 3, 2, 1, 25,
-            SoundEvents.ARMOR_EQUIP_GENERIC, 0, 0, TcMaterials.REPAIRS_NONE,
-            Identifier.fromNamespaceAndPath(Exploration.ID, id));
-        return Registration.armor(properties, material, ArmorSlot.BOOTS).durability(350);
+    static Item create(Item.Properties properties, String id) {
+        var texture = ResourceLocation.fromNamespaceAndPath(Exploration.ID, id);
+        var material = new net.minecraft.world.item.ArmorMaterial(
+            java.util.Map.of(net.minecraft.world.item.ArmorItem.Type.BOOTS, 1), 25,
+            SoundEvents.ARMOR_EQUIP_GENERIC, () -> net.minecraft.world.item.crafting.Ingredient.EMPTY,
+            java.util.List.of(new net.minecraft.world.item.ArmorMaterial.Layer(texture)), 0, 0);
+        return new net.minecraft.world.item.ArmorItem(net.minecraft.core.Holder.direct(material),
+            net.minecraft.world.item.ArmorItem.Type.BOOTS, properties.durability(350));
     }
 
     @SubscribeEvent
@@ -94,7 +97,7 @@ final class ExplorationBoots {
         updateAttributes(player, player.isInWater() ? speed / 4 : speed, true);
         if (comet) {
             if (!player.isInWater() && player.tickCount % 4 == 0) freezeWater(level, player);
-            player.fallDistance = Math.max(0, player.fallDistance - 0.25);
+            player.fallDistance = Math.max(0, player.fallDistance - 0.25F);
             motion.smashing = 0;
             motion.airborne = 0;
         } else {
@@ -136,7 +139,7 @@ final class ExplorationBoots {
         if (motion.smashing > 0) {
             motion.smashing++;
             player.setDeltaMovement(player.getDeltaMovement().add(0, -0.1, 0));
-            player.syncVelocity = true;
+            player.hurtMarked = true;
         }
     }
 

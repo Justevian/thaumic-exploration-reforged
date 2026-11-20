@@ -15,7 +15,7 @@ import thaumcraft.crafting.TcRecipes;
 import thaumcraft.crafting.TcStack;
 import thaumcraft.research.ResearchCategories;
 import thaumcraft.research.ResearchPage;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 final class ExplorationResearch {
     private static final String PREFIX = Exploration.ID + ":";
@@ -25,8 +25,8 @@ final class ExplorationResearch {
 
     static void register() {
         ResearchCategories.registerCategory(Exploration.ID,
-            Identifier.parse(PREFIX + "textures/tabs/tx_tab.png"),
-            Identifier.parse("thaumcraft:textures/gui/gui_researchback.png"));
+            ResourceLocation.parse(PREFIX + "textures/tabs/tx_tab.png"),
+            ResourceLocation.parse("thaumcraft:textures/gui/gui_researchback.png"));
         ExplorationResearchLayout.registerLinks();
         String blank = PREFIX + "blank_seal";
         var clay = TcIngredient.item("minecraft:clay_ball");
@@ -103,7 +103,7 @@ final class ExplorationResearch {
     private static void enchantment(String name, AspectList cost, String component, int instability) {
         String id = PREFIX + name;
         String research = "TX.ENCHANT." + name;
-        TcRecipes.register(new thaumcraft.crafting.InfusionEnchantmentRecipe(id, research, Identifier.parse(id),
+        TcRecipes.register(new thaumcraft.crafting.InfusionEnchantmentRecipe(id, research, ResourceLocation.parse(id),
             instability, cost, List.of(TcIngredient.item("thaumcraft:vis_filter"), TcIngredient.item(component))));
         add(research, null, ResearchPage.infusionEnchantment(id));
     }

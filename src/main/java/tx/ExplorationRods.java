@@ -1,7 +1,7 @@
 package tx;
 
 import java.util.ArrayList;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import thaumcraft.aspect.Aspect;
 import thaumcraft.wand.RodUpdate;
@@ -13,23 +13,23 @@ final class ExplorationRods {
 
     static void register() {
         WandRegistry.registerRod("necromancer", 200,
-            Identifier.fromNamespaceAndPath(Exploration.ID, "necromancer_staff_core"), 15,
+            ResourceLocation.fromNamespaceAndPath(Exploration.ID, "necromancer_staff_core"), 15,
             ExplorationRods::updateNecromancer, false, true, false,
-            Identifier.fromNamespaceAndPath(Exploration.ID, "textures/model/necromancer_staff_core.png"));
+            ResourceLocation.fromNamespaceAndPath(Exploration.ID, "textures/model/necromancer_staff_core.png"));
         RodUpdate recharge = (stack, player) -> {
             if (player.tickCount % 100 == 0) {
                 for (Aspect aspect : Aspect.getPrimalAspects()) Wands.addVis(stack, aspect, 1, true);
             }
         };
-        var texture = Identifier.fromNamespaceAndPath(Exploration.ID, "textures/model/amber_rod.png");
-        WandRegistry.registerRod("amber", 10, Identifier.fromNamespaceAndPath(Exploration.ID, "amber_rod"),
+        var texture = ResourceLocation.fromNamespaceAndPath(Exploration.ID, "textures/model/amber_rod.png");
+        WandRegistry.registerRod("amber", 10, ResourceLocation.fromNamespaceAndPath(Exploration.ID, "amber_rod"),
             8, recharge, false, false, false, texture);
-        WandRegistry.registerRod("amber", 25, Identifier.fromNamespaceAndPath(Exploration.ID, "amber_staff_core"),
+        WandRegistry.registerRod("amber", 25, ResourceLocation.fromNamespaceAndPath(Exploration.ID, "amber_staff_core"),
             18, recharge, false, true, false, texture);
-        var crystal = Identifier.fromNamespaceAndPath(Exploration.ID, "textures/model/transmutation_rod.png");
-        WandRegistry.registerRod("transmutation", 75, Identifier.fromNamespaceAndPath(Exploration.ID, "transmutation_rod"),
+        var crystal = ResourceLocation.fromNamespaceAndPath(Exploration.ID, "textures/model/transmutation_rod.png");
+        WandRegistry.registerRod("transmutation", 75, ResourceLocation.fromNamespaceAndPath(Exploration.ID, "transmutation_rod"),
             6, (stack, player) -> redistribute(stack), false, false, false, crystal);
-        WandRegistry.registerRod("transmutation", 175, Identifier.fromNamespaceAndPath(Exploration.ID, "transmutation_staff_core"),
+        WandRegistry.registerRod("transmutation", 175, ResourceLocation.fromNamespaceAndPath(Exploration.ID, "transmutation_staff_core"),
             14, (stack, player) -> redistribute(stack), false, true, false, crystal);
     }
 
@@ -37,11 +37,11 @@ final class ExplorationRods {
         if (!(player.level() instanceof net.minecraft.server.level.ServerLevel level)) return;
         var key = net.minecraft.core.component.DataComponents.CUSTOM_DATA;
         var data = stack.getOrDefault(key, net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
-        boolean initialized = data.getBooleanOr("necromancer_initialized", false);
+        boolean initialized = PortNbt.getBooleanOr(data, "necromancer_initialized", false);
         boolean changed = !initialized;
         for (Aspect aspect : Aspect.getPrimalAspects()) {
             int current = Wands.getVis(stack, aspect);
-            int previous = data.getIntOr(aspect.getTag(), 0);
+            int previous = PortNbt.getIntOr(data, aspect.getTag(), 0);
             if (initialized && current > previous) {
                 current = previous + (current - previous) * 3 / 4;
                 Wands.storeVis(stack, aspect, current);
