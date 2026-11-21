@@ -21,7 +21,11 @@ public final class ClientPortSmoke {
             var game=Minecraft.getInstance();
             if (game.level!=null && game.player!=null && ++worldTicks>40) {
                 checked=false; // completion exits the client before another tick
-                try { drawWorldModels(game); }
+                try {
+                    ResearchZoomSmoke.verify(game);
+                    com.mojang.logging.LogUtils.getLogger().info("TX_ZOOM_PASSED: cursor hit-test, zoom bounds, viewport clipping and scaled drag");
+                    drawWorldModels(game);
+                }
                 catch(Throwable failure) { com.mojang.logging.LogUtils.getLogger().error("TX_CLIENT_SMOKE_FAILED",failure); }
                 finally {game.stop();}
             } else if (System.nanoTime()-opened>120_000_000_000L) {

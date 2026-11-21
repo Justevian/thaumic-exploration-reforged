@@ -11,10 +11,12 @@ An unofficial port of **Thaumic Exploration 1.1-53** from Minecraft 1.7.10 to **
 - **Magical gear.** Amber and transmutative rods, the necromancer staff, Sojourner and Mechanist caps, Meteor and Comet Boots, rings, and enchantments.
 - **Research.** Floating candles stabilize infusions, and the Think Tank extracts knowledge fragments from books.
 
+**Thaumonomicon zoom.** Scroll over the research map to zoom around the cursor. The map starts at 80% and supports 40% to 160%.
+
 ## Installation
 
 1. Create a **Minecraft 1.21.1** profile with **NeoForge 21.1.256+**.
-2. Download the JAR from the [1.21.1 release](https://github.com/Justevian/thaumic-exploration-reforged/releases/tag/v0.1.18-alpha%2B1.21.1).
+2. Download the JAR from the [1.21.1 release](https://github.com/Justevian/thaumic-exploration-reforged/releases/tag/v0.1.19-alpha%2B1.21.1).
 3. Put it in the `mods` folder alongside **Thaumcraft 4: Reforged 1.1.3 for 1.21.1** and **TerraBlender 1.21.1-4.1.0.1** + **Curios 9.5.1+1.21.1**.
 
 [Download Thaumcraft 4: Reforged](https://github.com/notlikethiss/thaumcraft-4-reforged/releases/tag/1.21.1)
